@@ -1,13 +1,19 @@
+
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState } from "react";
 
 export const AuthContext = createContext();
 
+// Demo credentials only. Do not use client-side credentials in production.
+export const ADMIN_EMAIL = "admin@campussync.com";
+const ADMIN_PASSWORD = "CampusAdmin@2026";
+
 const USERS_KEY = "campus_users";
 const CURRENT_USER_KEY = "campus_current_user";
 const DATA_KEY = "campus_student_data";
+const EVENTS_KEY = "campus_university_events";
 
-// Helper to get initial users list
+// Existing student data helpers
 const getStoredUsers = () => {
   try {
     const data = localStorage.getItem(USERS_KEY);
@@ -17,7 +23,6 @@ const getStoredUsers = () => {
   }
 };
 
-// Helper to get all students' data dictionary
 const getStoredAllData = () => {
   try {
     const data = localStorage.getItem(DATA_KEY);
@@ -27,20 +32,24 @@ const getStoredAllData = () => {
   }
 };
 
-// Helper to get active session user
 const getStoredCurrentUser = () => {
   try {
     const data = localStorage.getItem(CURRENT_USER_KEY);
-    if (data) {
-      return JSON.parse(data);
-    }
-    return null;
+
+    if (!data) return null;
+
+    const user = JSON.parse(data);
+
+    // Existing sessions without a role are treated as student sessions.
+    return {
+      ...user,
+      role: user.role || "student"
+    };
   } catch {
     return null;
   }
 };
 
-// Default empty template for a newly registered student
 const createDefaultUserData = (name, email) => ({
   profile: {
     name: name || "",
@@ -66,68 +75,178 @@ const createDefaultUserData = (name, email) => ({
 });
 
 const getInitialUserData = (user) => {
-  if (!user || !user.email) return null;
+  if (!user || !user.email || user.role === "admin") {
+    return null;
+  }
+
   const allData = getStoredAllData();
-  const userEmail = user.email.toLowerCase().trim();
-  let student = allData[userEmail];
-  if (!student) {
-    student = createDefaultUserData(user.name, user.email);
-    allData[userEmail] = student;
+  const email = user.email.toLowerCase().trim();
+
+  if (!allData[email]) {
+    allData[email] = createDefaultUserData(user.name, email);
     localStorage.setItem(DATA_KEY, JSON.stringify(allData));
   }
-  return student;
+
+  return allData[email];
+};
+
+// Keep your existing three sample events for the first demo.
+// Once saved, even an empty array remains empty after refresh.
+const getStoredEvents = () => {
+  try {
+    const saved = localStorage.getItem(EVENTS_KEY);
+
+    if (saved !== null) {
+      const parsed = JSON.parse(saved);
+      return Array.isArray(parsed) ? parsed : [];
+    }
+
+    const initialEvents = [
+      {
+        id: "seed-1",
+        type: "Announcement",
+        title: "Mid-Semester Examination",
+        date: "2026-08-25",
+        venue: "",
+        description:
+          "The university has released the examination schedule."
+      },
+      {
+        id: "seed-2",
+        type: "Event",
+        title: "Annual Tech Fest",
+        date: "2026-08-30",
+        venue: "",
+        description:
+          "Registration for the annual technical festival is now open."
+      },
+      {
+        id: "seed-3",
+        type: "Event",
+        title: "Hackathon 2026",
+        date: "2026-09-05",
+        venue: "",
+        description:
+          "Students can register their teams for the upcoming hackathon."
+      }
+    ];
+
+    localStorage.setItem(EVENTS_KEY, JSON.stringify(initialEvents));
+    return initialEvents;
+  } catch {
+    return [];
+  }
 };
 
 export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState(getStoredCurrentUser);
-  const [userData, setUserData] = useState(() => getInitialUserData(getStoredCurrentUser()));
+  const [currentUser, setCurrentUser] = useState(
+    getStoredCurrentUser
+  );
 
-  // Signup function: registers account and initializes user data
+  const [userData, setUserData] = useState(() =>
+    getInitialUserData(getStoredCurrentUser())
+  );
+
+  const [events, setEvents] = useState(getStoredEvents);
+
+  // Student signup only
   const signup = (name, email, password) => {
     const trimmedEmail = email.toLowerCase().trim();
+
+    if (trimmedEmail === ADMIN_EMAIL) {
+      return {
+        success: false,
+        message: "This email is reserved for the university administrator."
+      };
+    }
+
     const users = getStoredUsers();
 
     const exists = users.find(
-      (u) => u.email.toLowerCase().trim() === trimmedEmail
+      (user) =>
+        user.email.toLowerCase().trim() === trimmedEmail
     );
 
     if (exists) {
-      return { success: false, message: "An account with this email already exists. Please log in." };
+      return {
+        success: false,
+        message:
+          "An account with this email already exists. Please log in."
+      };
     }
 
     const newUser = {
       name: name.trim(),
       email: trimmedEmail,
-      password: password,
+      password,
       createdAt: new Date().toISOString()
     };
 
     users.push(newUser);
     localStorage.setItem(USERS_KEY, JSON.stringify(users));
 
-    // Initialize user's personal data
     const allData = getStoredAllData();
+
     if (!allData[trimmedEmail]) {
-      allData[trimmedEmail] = createDefaultUserData(newUser.name, newUser.email);
+      allData[trimmedEmail] = createDefaultUserData(
+        newUser.name,
+        newUser.email
+      );
+
       localStorage.setItem(DATA_KEY, JSON.stringify(allData));
     }
 
-    return { success: true, message: "Account created successfully! Please log in." };
+    return {
+      success: true,
+      message: "Account created successfully! Please log in."
+    };
   };
 
-  // Login function: validates credentials and starts user session
+  // Login for the designated admin or an existing student
   const login = (email, password) => {
     const trimmedEmail = email.toLowerCase().trim();
+
+    // Admin login
+    if (trimmedEmail === ADMIN_EMAIL) {
+      if (password !== ADMIN_PASSWORD) {
+        return {
+          success: false,
+          message: "Invalid administrator password."
+        };
+      }
+
+      const adminUser = {
+        name: "University Admin",
+        email: ADMIN_EMAIL,
+        role: "admin"
+      };
+
+      localStorage.setItem(
+        CURRENT_USER_KEY,
+        JSON.stringify(adminUser)
+      );
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("campusUser", JSON.stringify(adminUser));
+
+      setCurrentUser(adminUser);
+      setUserData(null);
+
+      return { success: true, role: "admin" };
+    }
+
+    // Existing student login
     const users = getStoredUsers();
 
     const user = users.find(
-      (u) => u.email.toLowerCase().trim() === trimmedEmail
+      (item) =>
+        item.email.toLowerCase().trim() === trimmedEmail
     );
 
     if (!user) {
       return {
         success: false,
-        message: "No account found with this email. Please sign up first."
+        message:
+          "No account found with this email. Please sign up first."
       };
     }
 
@@ -138,13 +257,22 @@ export function AuthProvider({ children }) {
       };
     }
 
-    const sessionUser = { name: user.name, email: user.email };
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(sessionUser));
+    const sessionUser = {
+      name: user.name,
+      email: user.email,
+      role: "student"
+    };
+
+    localStorage.setItem(
+      CURRENT_USER_KEY,
+      JSON.stringify(sessionUser)
+    );
     localStorage.setItem("isLoggedIn", "true");
     localStorage.setItem("campusUser", JSON.stringify(sessionUser));
 
     const allData = getStoredAllData();
     let student = allData[trimmedEmail];
+
     if (!student) {
       student = createDefaultUserData(user.name, user.email);
       allData[trimmedEmail] = student;
@@ -153,76 +281,150 @@ export function AuthProvider({ children }) {
 
     setCurrentUser(sessionUser);
     setUserData(student);
-    return { success: true };
+
+    return { success: true, role: "student" };
   };
 
-  // Logout function: ends session while keeping data safely in localStorage
   const logout = () => {
     localStorage.removeItem(CURRENT_USER_KEY);
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("campusUser");
+
     setCurrentUser(null);
     setUserData(null);
   };
 
-  // Generic helper to update a slice of the logged in user's data
+  // Existing student data update logic
   const updateUserDataSlice = (sliceKey, newSliceData) => {
-    if (!currentUser || !currentUser.email) return;
-    const userEmail = currentUser.email.toLowerCase().trim();
+    if (
+      !currentUser ||
+      currentUser.role !== "student" ||
+      !currentUser.email
+    ) {
+      return;
+    }
+
+    const email = currentUser.email.toLowerCase().trim();
     const allData = getStoredAllData();
-    const currentStudent = allData[userEmail] || createDefaultUserData(currentUser.name, currentUser.email);
+
+    const currentStudent =
+      allData[email] ||
+      createDefaultUserData(currentUser.name, currentUser.email);
 
     const updatedStudent = {
       ...currentStudent,
       [sliceKey]: newSliceData
     };
 
-    allData[userEmail] = updatedStudent;
+    allData[email] = updatedStudent;
     localStorage.setItem(DATA_KEY, JSON.stringify(allData));
+
     setUserData(updatedStudent);
   };
 
-  // Specific updaters
   const updateProfile = (profileData) => {
-    if (!currentUser || !currentUser.email) return;
-    const userEmail = currentUser.email.toLowerCase().trim();
+    if (!currentUser || currentUser.role !== "student") return;
 
-    // Update in users array too if name changed
-    if (profileData.name && profileData.name !== currentUser.name) {
+    const email = currentUser.email.toLowerCase().trim();
+
+    if (
+      profileData.name &&
+      profileData.name !== currentUser.name
+    ) {
       const users = getStoredUsers();
-      const updatedUsers = users.map((u) =>
-        u.email.toLowerCase().trim() === userEmail ? { ...u, name: profileData.name } : u
+
+      const updatedUsers = users.map((user) =>
+        user.email.toLowerCase().trim() === email
+          ? { ...user, name: profileData.name }
+          : user
       );
+
       localStorage.setItem(USERS_KEY, JSON.stringify(updatedUsers));
 
-      const newSessionUser = { ...currentUser, name: profileData.name };
-      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(newSessionUser));
-      localStorage.setItem("campusUser", JSON.stringify(newSessionUser));
-      setCurrentUser(newSessionUser);
+      const updatedSession = {
+        ...currentUser,
+        name: profileData.name
+      };
+
+      localStorage.setItem(
+        CURRENT_USER_KEY,
+        JSON.stringify(updatedSession)
+      );
+      localStorage.setItem("campusUser", JSON.stringify(updatedSession));
+
+      setCurrentUser(updatedSession);
     }
 
-    const currentProfile = userData?.profile || createDefaultUserData(currentUser.name, currentUser.email).profile;
+    const currentProfile =
+      userData?.profile ||
+      createDefaultUserData(currentUser.name, currentUser.email).profile;
+
     updateUserDataSlice("profile", {
       ...currentProfile,
       ...profileData,
-      email: currentUser.email // email cannot be altered
+      email: currentUser.email
     });
   };
 
-  const updateAttendance = (attendanceData) => {
-    updateUserDataSlice("attendance", attendanceData);
+  const updateAttendance = (data) =>
+    updateUserDataSlice("attendance", data);
+
+  const updateTimetable = (data) =>
+    updateUserDataSlice("timetable", data);
+
+  const updateTasks = (data) =>
+    updateUserDataSlice("tasks", data);
+
+  const updateAssignments = (data) =>
+    updateUserDataSlice("assignments", data);
+
+  // Shared event storage: changes are allowed only for admin sessions.
+  const saveEvents = (updatedEvents) => {
+    if (currentUser?.role !== "admin") return false;
+
+    localStorage.setItem(EVENTS_KEY, JSON.stringify(updatedEvents));
+    setEvents(updatedEvents);
+
+    return true;
   };
 
-  const updateTimetable = (timetableData) => {
-    updateUserDataSlice("timetable", timetableData);
+ 
+const addEvent = (eventData) => {
+  if (currentUser?.role !== "admin") return;
+
+  const newEvent = {
+    ...eventData,
+    id: Date.now().toString(),
+    createdAt: Date.now(),
   };
 
-  const updateTasks = (tasksData) => {
-    updateUserDataSlice("tasks", tasksData);
+  setEvents((previousEvents) => {
+    const updatedEvents = [...previousEvents, newEvent];
+
+    localStorage.setItem(
+      "campus_events",
+      JSON.stringify(updatedEvents)
+    );
+
+    return updatedEvents;
+  });
+};
+
+
+  const updateEvent = (id, eventData) => {
+    if (currentUser?.role !== "admin") return;
+
+    const updatedEvents = events.map((event) =>
+      event.id === id ? { ...event, ...eventData, id } : event
+    );
+
+    saveEvents(updatedEvents);
   };
 
-  const updateAssignments = (assignmentsData) => {
-    updateUserDataSlice("assignments", assignmentsData);
+  const deleteEvent = (id) => {
+    if (currentUser?.role !== "admin") return;
+
+    saveEvents(events.filter((event) => event.id !== id));
   };
 
   return (
@@ -237,7 +439,11 @@ export function AuthProvider({ children }) {
         updateAttendance,
         updateTimetable,
         updateTasks,
-        updateAssignments
+        updateAssignments,
+        events,
+        addEvent,
+        updateEvent,
+        deleteEvent
       }}
     >
       {children}
@@ -247,8 +453,10 @@ export function AuthProvider({ children }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
+
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
+
   return context;
 }

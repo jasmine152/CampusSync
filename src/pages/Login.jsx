@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -22,7 +23,10 @@ function Login() {
     const result = login(email, password);
 
     if (result.success) {
-      navigate("/dashboard");
+      navigate(
+        result.role === "admin" ? "/admin/dashboard" : "/dashboard",
+        { replace: true }
+      );
     } else {
       setError(result.message);
     }

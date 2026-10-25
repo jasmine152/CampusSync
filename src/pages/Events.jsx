@@ -1,72 +1,96 @@
-function Events() {
 
-  const events = [
-    {
-      title: "Mid-Semester Examination",
-      date: "25 August 2026",
-      text: "The university has released the examination schedule."
-    },
-    {
-      title: "Annual Tech Fest",
-      date: "30 August 2026",
-      text: "Registration for the annual technical festival is now open."
-    },
-    {
-      title: "Hackathon 2026",
-      date: "5 September 2026",
-      text: "Students can register their teams for the upcoming hackathon."
-    }
-  ];
+import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
+function formatDate(date) {
+  if (!date) return "Date not specified";
+
+  const parsed = new Date(`${date}T00:00:00`);
+
+  if (Number.isNaN(parsed.getTime())) return date;
+
+  return parsed.toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+}
+
+function Events() {
+  const { events, currentUser } = useAuth();
+  const isAdmin = currentUser?.role === "admin";
+
+  const sortedEvents = [...events].sort(
+    (a, b) => new Date(a.date) - new Date(b.date)
+  );
 
   return (
-    <div className="page-container">
+    <div className="cs-page">
+      <div className="cs-page-header">
+        <div>
+          <span className="cs-eyebrow">CAMPUSSYNC • UNIVERSITY UPDATES</span>
+          <h1>Events & Announcements</h1>
+          <p>
+            Stay updated with important university news and campus activities.
+          </p>
+        </div>
 
-      <div className="page-header">
-
-        <h1>Events & Announcements</h1>
-
-        <p>
-          Stay updated with important university news.
-        </p>
-
+        {isAdmin && (
+          <Link to="/admin/events" className="cs-btn cs-btn-primary">
+            + Manage Events
+          </Link>
+        )}
       </div>
 
+      {sortedEvents.length === 0 ? (
+        <div className="cs-empty">
+          <div className="cs-empty-icon">📢</div>
+          <h2>No events published yet</h2>
+          <p>
+            University events and announcements will appear here when published.
+          </p>
 
-      <div className="events-list">
+          {isAdmin && (
+            <Link to="/admin/events" className="cs-btn cs-btn-primary">
+              Create First Event
+            </Link>
+          )}
+        </div>
+      ) : (
+        <div className="cs-event-grid">
+          {sortedEvents.map((event) => (
+            <article className="cs-event-card" key={event.id}>
+              <div className="cs-event-card-top">
+                <span
+                  className={
+                    event.type === "Announcement"
+                      ? "cs-type cs-type-announcement"
+                      : "cs-type cs-type-event"
+                  }
+                >
+                  {event.type || "Event"}
+                </span>
 
-        {events.map((event, index) => (
+                <span className="cs-event-date">
+                  📅 {formatDate(event.date)}
+                </span>
+              </div>
 
-          <div
-            className="event-card"
-            key={index}
-          >
+              <h2>{event.title}</h2>
 
-            <div className="event-icon">
-              📢
-            </div>
-
-            <div>
-
-              <span className="event-date">
-                {event.date}
-              </span>
-
-              <h2>
-                {event.title}
-              </h2>
-
-              <p>
-                {event.text}
+              <p className="cs-event-description">
+                {event.description}
               </p>
 
-            </div>
-
-          </div>
-
-        ))}
-
-      </div>
-
+              {event.venue && (
+                <p className="cs-event-venue">
+                  <strong>📍 Venue:</strong> {event.venue}
+                </p>
+              )}
+            </article>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

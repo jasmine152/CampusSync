@@ -1,6 +1,7 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth, ADMIN_EMAIL } from "../context/AuthContext";
 
 function Signup() {
   const [name, setName] = useState("");
@@ -27,6 +28,11 @@ function Signup() {
       return;
     }
 
+    if (email.trim().toLowerCase() === ADMIN_EMAIL) {
+      setError("This email is reserved for the university administrator.");
+      return;
+    }
+
     const result = signup(name, email, password);
 
     if (!result.success) {
@@ -35,6 +41,7 @@ function Signup() {
     }
 
     setSuccess("Account created successfully! Redirecting to login...");
+
     setTimeout(() => {
       navigate("/login");
     }, 1200);
@@ -81,7 +88,7 @@ function Signup() {
             placeholder="Create a password (min. 6 characters)"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            minLength="6"
+            minLength={6}
             required
           />
 

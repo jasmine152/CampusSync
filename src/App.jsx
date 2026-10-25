@@ -1,3 +1,4 @@
+
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login";
@@ -10,58 +11,90 @@ import StudyPlanner from "./pages/StudyPlanner";
 import Events from "./pages/Events";
 import Profile from "./pages/Profile";
 
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminEvents from "./pages/AdminEvents";
+
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-
-// ================= LAYOUT =================
+import "./admin.css";
 
 function Layout() {
-
   return (
-
     <div className="app">
-
       <Navbar />
-
       <Sidebar />
 
       <main className="main-content">
-
         <Routes>
-
+          {/* Student-only pages */}
           <Route
             path="/dashboard"
-            element={<Dashboard />}
+            element={
+              <ProtectedRoute requiredRole="student">
+                <Dashboard />
+              </ProtectedRoute>
+            }
           />
 
           <Route
             path="/attendance"
-            element={<Attendance />}
+            element={
+              <ProtectedRoute requiredRole="student">
+                <Attendance />
+              </ProtectedRoute>
+            }
           />
 
           <Route
             path="/timetable"
-            element={<Timetable />}
+            element={
+              <ProtectedRoute requiredRole="student">
+                <Timetable />
+              </ProtectedRoute>
+            }
           />
 
           <Route
             path="/study-planner"
-            element={<StudyPlanner />}
-          />
-
-          <Route
-            path="/events"
-            element={<Events />}
+            element={
+              <ProtectedRoute requiredRole="student">
+                <StudyPlanner />
+              </ProtectedRoute>
+            }
           />
 
           <Route
             path="/profile"
-            element={<Profile />}
+            element={
+              <ProtectedRoute requiredRole="student">
+                <Profile />
+              </ProtectedRoute>
+            }
           />
 
-          {/* Wrong page */}
+          {/* Shared Events page */}
+          <Route path="/events" element={<Events />} />
+
+          {/* Admin-only pages */}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/events"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminEvents />
+              </ProtectedRoute>
+            }
+          />
 
           <Route
             path="*"
@@ -69,53 +102,27 @@ function Layout() {
               <div className="page-container">
                 <div className="page-card">
                   <h1>404</h1>
-                  <p>
-                    Sorry, this page does not exist.
-                  </p>
+                  <p>Sorry, this page does not exist.</p>
                 </div>
               </div>
             }
           />
-
         </Routes>
-
       </main>
-
     </div>
-
   );
 }
 
-
-// ================= APP =================
-
 function App() {
-
   return (
-
     <Routes>
-
-      {/* ================= PUBLIC ================= */}
-
       <Route
         path="/"
-        element={
-          <Navigate to="/login" replace />
-        }
+        element={<Navigate to="/login" replace />}
       />
 
-      <Route
-        path="/login"
-        element={<Login />}
-      />
-
-      <Route
-        path="/signup"
-        element={<Signup />}
-      />
-
-
-      {/* ================= PROTECTED ================= */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
 
       <Route
         path="/*"
@@ -125,11 +132,8 @@ function App() {
           </ProtectedRoute>
         }
       />
-
     </Routes>
-
   );
-
 }
 
 export default App;

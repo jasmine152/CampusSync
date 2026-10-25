@@ -2421,3 +2421,22 @@ body.dark .donut-stats span {
 body.dark .donut-stats {
   border-top-color: #374151;
 }
+
+
+.notification {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-dot {
+  position: absolute;
+  top: 0;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  background-color: #ff3030;
+  border: 2px solid white;
+  border-radius: 50%;
+}
