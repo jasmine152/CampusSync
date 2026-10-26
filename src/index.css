@@ -2440,3 +2440,263 @@ body.dark .donut-stats {
   border: 2px solid white;
   border-radius: 50%;
 }
+
+
+
+/* ================= EDUCATIONAL POSTS ================= */
+
+.educational-page {
+  max-width: 1500px;
+}
+
+.edu-form-card {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+  margin-bottom: 25px;
+}
+
+.edu-form-card h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+.edu-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.edu-form label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.edu-form input,
+.edu-form textarea,
+.edu-search input {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 9px;
+  font: inherit;
+  outline: none;
+  background: white;
+  color: #1f2937;
+}
+
+.edu-form textarea {
+  resize: vertical;
+}
+
+.edu-form input:focus,
+.edu-form textarea:focus,
+.edu-search input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.edu-form-actions,
+.edu-post-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.edu-primary-btn,
+.edu-cancel-btn,
+.edu-post-actions button,
+.edu-error button {
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.edu-primary-btn {
+  background: #6366f1;
+  color: white;
+}
+
+.edu-primary-btn:hover {
+  background: #4f46e5;
+}
+
+.edu-cancel-btn {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.edu-search {
+  margin: 25px 0;
+}
+
+.edu-section {
+  margin-top: 30px;
+}
+
+.edu-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.edu-section-heading h2 {
+  font-size: 21px;
+}
+
+.edu-section-heading span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.edu-post-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.edu-post-card {
+  min-width: 0;
+  background: white;
+  padding: 22px;
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+  border: 1px solid #eef2f7;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.edu-post-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+}
+
+.edu-post-label {
+  display: inline-block;
+  background: #eef2ff;
+  color: #4f46e5;
+  border-radius: 20px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.edu-post-card h3 {
+  font-size: 17px;
+  line-height: 1.4;
+  margin-bottom: 10px;
+  overflow-wrap: anywhere;
+}
+
+.edu-post-body {
+  color: #64748b;
+  line-height: 1.65;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.edu-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 15px;
+}
+
+.edu-tags span {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+}
+
+.edu-author {
+  color: #64748b;
+  font-size: 12px;
+  margin-top: 15px;
+}
+
+.edu-post-actions button {
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.edu-post-actions .edu-delete-btn {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.edu-empty,
+.edu-message,
+.edu-error {
+  padding: 20px;
+  border-radius: 10px;
+  background: white;
+  color: #64748b;
+  margin-bottom: 15px;
+}
+
+.edu-error {
+  color: #b91c1c;
+  background: #fef2f2;
+}
+
+.edu-error button {
+  margin-top: 10px;
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+body.dark .edu-form-card,
+body.dark .edu-post-card,
+body.dark .edu-empty,
+body.dark .edu-message {
+  background: #1f2937;
+  color: #f1f5f9;
+  border-color: #374151;
+}
+
+body.dark .edu-form input,
+body.dark .edu-form textarea,
+body.dark .edu-search input {
+  background: #111827;
+  color: white;
+  border-color: #374151;
+}
+
+body.dark .edu-post-body,
+body.dark .edu-author,
+body.dark .edu-section-heading span {
+  color: #9ca3af;
+}
+
+body.dark .edu-tags span {
+  background: #374151;
+  color: #e5e7eb;
+}
+
+body.dark .edu-cancel-btn {
+  background: #374151;
+  color: white;
+}
+
+@media (max-width: 800px) {
+  .edu-post-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 500px) {
+  .edu-form-card,
+  .edu-post-card {
+    padding: 17px;
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "posts": [
+    {
+      "title": "Hackthon",
+      "body": "Evolve ai really helpful",
+      "tags": [
+        "@chitkara @evolveAi"
+      ],
+      "author": "Jasmine",
+      "authorEmail": "jas@gmail.com",
+      "createdAt": "2026-10-26T20:12:00.453Z",
+      "id": "cnoMovF-gmQ"
+    },
+    {
+      "title": "Agentic AI",
+      "body": "I participated in my a agentic Ai workshop",
+      "tags": [
+        "@study"
+      ],
+      "author": "diya",
+      "authorEmail": "diya@gmail.com",
+      "createdAt": "2026-10-26T20:15:46.987Z",
+      "id": "R82jUhKuYxY"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

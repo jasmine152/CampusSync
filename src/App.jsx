@@ -4,6 +4,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 
+
 import Dashboard from "./pages/Dashboard";
 import Attendance from "./pages/Attendance";
 import Timetable from "./pages/Timetable";
@@ -19,6 +20,7 @@ import Sidebar from "./components/Sidebar";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import "./admin.css";
+import EducationalPosts from "./pages/EducationalPosts";
 
 function Layout() {
   return (
@@ -37,6 +39,15 @@ function Layout() {
               </ProtectedRoute>
             }
           />
+
+            <Route
+  path="/educational-posts"
+  element={
+    <ProtectedRoute requiredRole="student">
+      <EducationalPosts />
+    </ProtectedRoute>
+  }
+/>
 
           <Route
             path="/attendance"

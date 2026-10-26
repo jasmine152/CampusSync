@@ -47,6 +47,9 @@ function Sidebar() {
             <NavLink to="/dashboard">
               🏠 Dashboard
             </NavLink>
+            <NavLink to="/educational-posts">
+  📚 Educational Posts
+</NavLink>
 
             <NavLink to="/attendance">
               📊 Attendance
